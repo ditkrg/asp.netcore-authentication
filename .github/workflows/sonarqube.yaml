@@ -1,0 +1,51 @@
+name: Run SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - main
+
+    paths-ignore:
+      - "**.md"
+      - ".vscode/**"
+
+concurrency:
+  group: sonarqube-analysis
+
+jobs:
+  run-tests:
+    name: Run SonarQube Analysis
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_KEY: ditkrg_DIT.Workflower_AYF14rjSb80e2b0bns3t
+      SONARQUBE_HOST: ${{ secrets.SONARQUBE_HOST }}
+      SONARQUBE_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+      ASPNETCORE_ENVIRONMENT: Testing
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "11"
+
+      - name: Restore tools
+        run: dotnet tool restore
+
+      - name: Run Tests (SonarQube)
+        run: |
+          dotnet tool run dotnet-sonarscanner begin -k:"$PROJECT_KEY" \
+            -d:sonar.login="$SONARQUBE_TOKEN" \
+            -d:sonar.host.url="$SONARQUBE_HOST" \
+            -d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml
+
+          dotnet build --no-incremental
+          dotnet dotnet-coverage collect "dotnet test" -f xml -o "coverage.xml"
+
+          dotnet tool run dotnet-sonarscanner end -d:sonar.login="$SONARQUBE_TOKEN"

@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>DIT.Authentication.GatewayAuth</RootNamespace>
+
+    <!-- NUGET  -->
+    <IsPackable>true</IsPackable>
+    <PackageId>DIT.Authentication.GatewayAuth</PackageId>
+    <PackageTags>Authentication;Gateway;DIT</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+</Project>
