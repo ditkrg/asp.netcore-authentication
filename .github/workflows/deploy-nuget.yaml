@@ -34,7 +34,7 @@ jobs:
         run: dotnet restore
 
       - name: Create Pack
-        run: dotnet pack --no-restore --property:PackageOutputPath= ${{ runner.temp }}/packages --property:PackageVersion=${{ github.ref_name }}
+        run: dotnet pack --no-restore --property:PackageOutputPath=${{ runner.temp }}/packages --property:PackageVersion=${{ github.ref_name }}
 
       - name: Publish to Nuget
         run: |-
