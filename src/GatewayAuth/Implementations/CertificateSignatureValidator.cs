@@ -15,6 +15,9 @@ internal sealed class CertificateSignatureValidator : ISignatureValidator
     {
         if (_rsa is not null) return;
 
+        if (string.IsNullOrWhiteSpace(options.Certificate))
+            throw new InvalidOperationException("Certificate is null or whitespace");
+
         var certificate = new X509Certificate2(Encoding.ASCII.GetBytes(options.Certificate));
         _rsa = certificate.GetRSAPublicKey() ?? throw new InvalidOperationException("Could not get RSA public key from certificate");
     }

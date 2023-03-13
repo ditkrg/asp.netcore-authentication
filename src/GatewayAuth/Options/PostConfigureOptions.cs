@@ -14,9 +14,6 @@ public sealed class PostConfigureOptions : IPostConfigureOptions<GatewayAuthOpti
 
     public void PostConfigure(string? name, GatewayAuthOptions options)
     {
-        if (options.Certificate == null)
-            throw new InvalidOperationException("Certificate is null");
-
         _signatureValidator.Initialize(options);
     }
 }
