@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using DIT.Authentication.GatewayAuth.Abstractions;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -14,9 +15,11 @@ public class GatewayAuthHandler : AuthenticationHandler<GatewayAuthOptions>
 
     private readonly IClaimsProvider _claimsProvider;
     private readonly ISignatureValidator _signatureValidator;
+    private readonly IForbidResponseHandler? _forbidResponseHandler;
 
     public GatewayAuthHandler(
         IClaimsProvider claimsProvider,
+        IServiceProvider serviceProvider,
         UrlEncoder encoder,
         IOptionsMonitor<GatewayAuthOptions> options,
         ILoggerFactory logger,
@@ -25,6 +28,8 @@ public class GatewayAuthHandler : AuthenticationHandler<GatewayAuthOptions>
     {
         _claimsProvider = claimsProvider;
         _signatureValidator = signatureValidator;
+
+        _forbidResponseHandler = serviceProvider.GetService<IForbidResponseHandler>();
     }
 
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -57,6 +62,14 @@ public class GatewayAuthHandler : AuthenticationHandler<GatewayAuthOptions>
         {
             return AuthenticateResult.Fail(e);
         }
+    }
+
+    protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
+    {
+        if (_forbidResponseHandler != null)
+            return _forbidResponseHandler.HandleForbiddenAsync(Context, properties);
+
+        return base.HandleForbiddenAsync(properties);
     }
 
     private static bool ExtractSignatureValue(string signatureHeader, [NotNullWhen(true)] out string? signature)
